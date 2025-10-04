@@ -1,12 +1,13 @@
-import { View, Text, Image, FlatList, ActivityIndicator } from 'react-native'
-import { images } from '@/constants/images'
 import MovieCard from '@/components/MovieCard'
-import { useRouter } from 'expo-router'
-import { fetchMovies } from '@/services/api'
-import useFetch from '@/services/useFetch'
-import { icons } from '@/constants/icons'
 import SearchBar from '@/components/SearchBar'
+import { icons } from '@/constants/icons'
+import { images } from '@/constants/images'
+import { fetchMovies } from '@/services/api'
+import { updateSearchCount } from '@/services/appwrite'
+import useFetch from '@/services/useFetch'
+import { useRouter } from 'expo-router'
 import { useEffect, useState } from 'react'
+import { ActivityIndicator, FlatList, Image, Text, View } from 'react-native'
 
 const Search = () => {
   const router = useRouter();
@@ -23,9 +24,13 @@ const Search = () => {
   }), false);
 
   useEffect(() => {
+    
     const timeoutId = setTimeout(async () => {
       if (searchQuery.trim()) {
         await loadMovies();
+        if (movies?.length > 0 && movies?.[0]) {
+          await updateSearchCount(searchQuery, movies?.[0]);
+        }
       } else {
         reset();
       }
